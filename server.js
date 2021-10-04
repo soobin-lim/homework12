@@ -3,15 +3,6 @@ const mysql = require('mysql2');
 const app = express();
 const PORT = 3001;
 const cTable = require('console.table');
-// console.table([
-//   {
-//     name: 'foo',
-//     age: 10
-//   }, {
-//     name: 'bar',
-//     age: 20
-//   }
-// ]);
 
 const db = mysql.createConnection(
   {
@@ -102,7 +93,7 @@ async function callinquirer() {
         let role_id;
         let manager_id;
         let role_rows;
-        let roleidArray;
+        let roleidArray = [];
 
         db.query('SELECT COUNT(*) as row_count FROM role', function (err, data) {
           if (err) {
@@ -118,18 +109,20 @@ async function callinquirer() {
         inquirer.prompt([
           { type: 'input', name: 'first_name', message: "please input employee's first name?" },
           { type: 'input', name: 'last_name', message: "please input employee's last name?" },
-          { type: 'list', name: 'role_id', message: "please input role id?" , choices = roleidArray},
+          { type: 'list', name: 'role_id', message: "please input role id?", choices: roleidArray },
           { type: 'input', name: 'manager_id', message: "please input manager id?" }
         ])
-          .then((answer) => { 
+          .then((answer) => {
             first_name = answer.first_name;
             last_name = answer.last_name;
             role_id = answer.role_id;
             manager_id = answer.manager_id;
+            db.query(`INSERT INTO employee VALUES (DEFAULT, '${first_name}', '${last_name}', '${role_id}', '${manager_id}');`);
+            view_employee();
           })
+
           .catch((err) => { if (err.isTtyError) { } else { console.log() } });
-        db.query(`INSERT INTO employee VALUES (DEFAULT, '${first_name}', '${last_name}', '${role_id}', '${manager_id}');`);
-        view_employee();
+
       }
     })
     .catch((error) => {
@@ -144,7 +137,7 @@ async function callinquirer() {
 }
 
 
-function view_role(){
+function view_role() {
   db.query('SELECT * FROM role;', function (err, data) {
     if (err) {
       console.log(err);
@@ -154,7 +147,7 @@ function view_role(){
   });
 }
 
-function view_employee(){
+function view_employee() {
   db.query('SELECT * FROM employee;', function (err, data) {
     if (err) {
       console.log(err);
@@ -164,7 +157,7 @@ function view_employee(){
   });
 }
 
-function view_department(){
+function view_department() {
   db.query('SELECT * FROM department;', function (err, data) {
     if (err) {
       console.log(err);
